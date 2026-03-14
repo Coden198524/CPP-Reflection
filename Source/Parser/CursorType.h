@@ -6,12 +6,18 @@
 
 #pragma once
 
+#include "ASTTypes.h"
+
+#include <string>
+#include <memory>
+
 class Cursor;
+class TypeInfo;
 
 class CursorType
 {
 public:
-    CursorType(const CXType &handle);
+    CursorType(TypeInfo* handle);
 
     std::string GetDisplayName(void) const;
 
@@ -22,10 +28,10 @@ public:
 
     Cursor GetDeclaration(void) const;
 
-    CXTypeKind GetKind(void) const;
+    TypeKind GetKind(void) const;
 
     bool IsConst(void) const;
 
 private:
-    CXType m_handle;
+    TypeInfo* m_handle;
 };

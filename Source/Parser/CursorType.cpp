@@ -7,8 +7,10 @@
 #include "Precompiled.h"
 
 #include "CursorType.h"
+#include "TypeInfo.h"
+#include "Cursor.h"
 
-CursorType::CursorType(const CXType &handle)
+CursorType::CursorType(TypeInfo* handle)
     : m_handle( handle )
 {
 
@@ -16,39 +18,56 @@ CursorType::CursorType(const CXType &handle)
 
 std::string CursorType::GetDisplayName(void) const
 {
-    std::string displayName;
+    if (!m_handle)
+        return "";
 
-    utils::ToString( clang_getTypeSpelling( m_handle ), displayName );
-
-    return displayName;
+    return m_handle->GetDisplayName();
 }
 
 int CursorType::GetArgumentCount(void) const
 {
-    return clang_getNumArgTypes( m_handle );
+    if (!m_handle)
+        return 0;
+
+    return m_handle->GetArgumentCount();
 }
 
 CursorType CursorType::GetArgument(unsigned index) const
 {
-    return clang_getArgType( m_handle, index );
+    if (!m_handle)
+        return CursorType(nullptr);
+
+    auto arg = m_handle->GetArgument(index);
+    return CursorType(arg.get());
 }
 
 CursorType CursorType::GetCanonicalType(void) const
 {
-    return clang_getCanonicalType( m_handle );
+    if (!m_handle)
+        return CursorType(nullptr);
+
+    auto canonical = m_handle->GetCanonicalType();
+    return CursorType(canonical.get());
 }
 
 Cursor CursorType::GetDeclaration(void) const
 {
-    return clang_getTypeDeclaration( m_handle );
+    // TODO: Implement type-to-cursor mapping
+    return Cursor(nullptr);
 }
 
-CXTypeKind CursorType::GetKind(void) const
+TypeKind CursorType::GetKind(void) const
 {
-    return m_handle.kind;
+    if (!m_handle)
+        return TypeKind::Invalid;
+
+    return m_handle->GetKind();
 }
 
 bool CursorType::IsConst(void) const
 {
-    return clang_isConstQualifiedType( m_handle ) ? true : false;
+    if (!m_handle)
+        return false;
+
+    return m_handle->IsConst();
 }
