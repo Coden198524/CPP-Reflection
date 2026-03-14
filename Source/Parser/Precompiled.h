@@ -13,8 +13,6 @@
 
 #include <functional>
 
-#include <clang-c/Index.h>
-
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 

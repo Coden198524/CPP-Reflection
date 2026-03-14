@@ -211,6 +211,13 @@ public:
 class JsonNull final : public Value<Json::NUL, std::nullptr_t> {
 public:
     JsonNull() : Value(nullptr) {}
+    // Override comparison operators for nullptr_t since it doesn't support < operator
+    bool equals(const JsonValue * other) const override {
+        return other->type() == Json::NUL;
+    }
+    bool less(const JsonValue * other) const override {
+        return false; // nullptr is not less than anything
+    }
 };
 
 /* * * * * * * * * * * * * * * * * * * *
