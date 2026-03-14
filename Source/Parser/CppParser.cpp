@@ -182,23 +182,39 @@ CppParser::ASTNodePtr CppParser::parseEnum(void)
     if (!expect("enum"))
         return nullptr;
 
-    auto enumNode = std::make_shared<EnumNode>();
-    enumNode->kind = CursorKind::EnumDecl;
-
+    // Check for enum class or enum struct
+    bool isEnumClass = false;
     if (match("class") || match("struct"))
     {
-        enumNode->isScoped = true;
+        isEnumClass = true;
         advance();
     }
 
-    enumNode->name = nextToken();
+    // Get enum name
+    std::string enumName = nextToken();
 
+    // Create enum node with proper constructor
+    auto enumNode = std::make_shared<EnumNode>(enumName, 0, 0, isEnumClass);
+
+    // Set qualified name based on current namespace
+    std::string qualifiedName = getCurrentNamespace();
+    if (!qualifiedName.empty())
+        qualifiedName += "::" + enumName;
+    else
+        qualifiedName = enumName;
+
+    enumNode->SetQualifiedName(qualifiedName);
+
+    // Parse underlying type if specified (e.g., enum class Foo : int)
     if (peek(":"))
     {
         advance();
-        enumNode->underlyingType = parseType();
+        // Skip underlying type for now - parseType() would handle this
+        // but we don't store it in EnumNode currently
+        auto underlyingType = parseType();
     }
 
+    // Parse enum body
     if (expect("{"))
     {
         parseEnumBody(enumNode.get());
@@ -238,38 +254,6 @@ CppParser::ASTNodePtr CppParser::parseStruct(void)
     popScope();
 
     return classNode;
-}
-
-CppParser::ASTNodePtr CppParser::parseEnum(void)
-{
-    if (!expect("enum"))
-        return nullptr;
-
-    auto enumNode = std::make_shared<EnumNode>();
-    enumNode->kind = CursorKind::EnumDecl;
-
-    if (match("class") || match("struct"))
-    {
-        enumNode->isScoped = true;
-        advance();
-    }
-
-    enumNode->name = nextToken();
-
-    if (peek(":"))
-    {
-        advance();
-        enumNode->underlyingType = parseType();
-    }
-
-    if (expect("{"))
-    {
-        parseEnumBody(enumNode.get());
-        expect("}");
-        expect(";");
-    }
-
-    return enumNode;
 }
 
 CppParser::ASTNodePtr CppParser::parseMethod(AccessSpecifier currentAccess)
@@ -700,20 +684,40 @@ void CppParser::parseEnumBody(EnumNode *enumNode)
 {
     while (!peek("}") && !isEOF())
     {
-        std::string enumValue = currentToken();
+        std::string key = currentToken();
+        std::string value;
+
         advance();
 
+        // Check if there's an explicit value assignment
         if (match("="))
         {
             advance();
+            // Collect the value expression until we hit a comma or closing brace
+            std::string valueExpr;
             while (!match(",") && !peek("}") && !isEOF())
             {
+                if (!valueExpr.empty())
+                    valueExpr += " ";
+                valueExpr += currentToken();
                 advance();
             }
+            value = valueExpr;
+        }
+        else
+        {
+            // No explicit value, use qualified enum value name
+            std::string qualifiedName = enumNode->GetQualifiedName();
+            if (!qualifiedName.empty())
+                value = qualifiedName + "::" + key;
+            else
+                value = key;
         }
 
-        enumNode->values.push_back(enumValue);
+        // Add the enum value using the proper API
+        enumNode->AddEnumValue(key, value);
 
+        // Skip comma if present
         if (match(","))
             advance();
     }
