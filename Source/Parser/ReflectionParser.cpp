@@ -15,6 +15,8 @@
 #include "LanguageTypes/Function.h"
 #include "LanguageTypes/Enum.h"
 
+#include "CppParser.h"
+
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/predicate.hpp>
@@ -72,23 +74,37 @@ ReflectionParser::~ReflectionParser(void)
 
 void ReflectionParser::Parse(void)
 {
-    // TODO: Implement new parser without libclang
-    Namespace tempNamespace;
+    // Use new CppParser instead of libclang
+    CppParser parser;
 
-    // Placeholder: buildClasses will be updated to use new parser
-    // buildClasses( cursor, tempNamespace );
+    // Parse each input source file
+    for (auto &sourceFile : m_options.inputSourceFiles)
+    {
+        auto rootNode = parser.Parse( sourceFile );
 
-    tempNamespace.clear( );
+        if (!rootNode)
+            continue;
 
-    // buildGlobals( cursor, tempNamespace );
+        // Create cursor from root AST node
+        Cursor cursor( rootNode.get( ) );
 
-    tempNamespace.clear( );
+        Namespace tempNamespace;
 
-    // buildGlobalFunctions( cursor, tempNamespace );
+        // Build language types from AST
+        buildClasses( cursor, tempNamespace );
 
-    tempNamespace.clear( );
+        tempNamespace.clear( );
 
-    // buildEnums( cursor, tempNamespace );
+        buildGlobals( cursor, tempNamespace );
+
+        tempNamespace.clear( );
+
+        buildGlobalFunctions( cursor, tempNamespace );
+
+        tempNamespace.clear( );
+
+        buildEnums( cursor, tempNamespace );
+    }
 }
 
 void ReflectionParser::GenerateFiles(void)
