@@ -8,8 +8,6 @@
 
 #include "MetaUtils.h"
 
-#include <boost/algorithm/string/join.hpp>
-
 #include <fstream>
 #include <exception>
 
@@ -53,15 +51,15 @@ namespace utils
             type.GetDisplayName( )
         );
 
-        return boost::join( parentNamespace, "::" );
+        return utils::Join( parentNamespace, "::" );
     }
 
     std::string GetQualifiedName(
-        const std::string &displayName, 
+        const std::string &displayName,
         const Namespace &currentNamespace
     )
     {
-        auto name = boost::join( currentNamespace, "::" );
+        auto name = utils::Join( currentNamespace, "::" );
 
         if (!currentNamespace.empty( ))
             name += "::";
@@ -133,38 +131,9 @@ namespace utils
         output.close( );
     }
 
-    boost::filesystem::path MakeRelativePath(const boost::filesystem::path &from, const boost::filesystem::path &to)
+    std::filesystem::path MakeRelativePath(const std::filesystem::path &from, const std::filesystem::path &to)
     {
-        // Start at the root path and while they are the same then do nothing then when they first
-        // diverge take the remainder of the two path and replace the entire from path with ".."
-        // segments.
-        auto itFrom = from.begin( );
-        auto itTo = to.begin( );
-
-        // Loop through both
-        while (itFrom != from.end( ) && itTo != to.end( ) && (*itTo) == (*itFrom))
-        {
-            ++itTo;
-            ++itFrom;
-        }
-
-        boost::filesystem::path finalPath;
-
-        while (itFrom != from.end( ))
-        {
-            finalPath /= "..";
-
-            ++itFrom;
-        }
-
-        while (itTo != to.end( ))
-        {
-            finalPath /= *itTo;
-
-            ++itTo;
-        }
-
-        return finalPath;
+        return std::filesystem::relative( to, from );
     }
 
     void FatalError(const std::string &error)
