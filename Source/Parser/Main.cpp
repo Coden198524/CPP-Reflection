@@ -33,49 +33,49 @@ int main(int argc, char *argv[])
         po::OptionsDescription program( "Ursine Meta Parser" );
 
         program.add_options( )
-        ( 
-            SWITCH_OPTION( Help ), 
-            "Displays help information." 
+        (
+            SWITCH_OPTION( Help ),
+            "Displays help information."
         )
-        ( 
-            SWITCH_OPTION( TargetName ), 
-            po::value<std::string>( )->required( ),
-            "Input target project name." 
+        (
+            SWITCH_OPTION( TargetName ),
+            po::value<std::string>()->required( ),
+            "Input target project name."
         )
-        ( 
-            SWITCH_OPTION( SourceRoot ), 
-            po::value<std::string>( )->required( ),
-            "Root source directory that is shared by all header files." 
+        (
+            SWITCH_OPTION( SourceRoot ),
+            po::value<std::string>()->required( ),
+            "Root source directory that is shared by all header files."
         )
-        ( 
-            SWITCH_OPTION( InputSource ), 
-            po::value<std::string>( )->required( ), 
-            "Source file (header) to compile reflection data from." 
+        (
+            SWITCH_OPTION( InputSource ),
+            po::value<std::string>()->required( ),
+            "Source file (header) to compile reflection data from."
         )
-            ( 
-            SWITCH_OPTION( ModuleHeaderFile ), 
-            po::value<std::string>( )->required( ), 
-            "Header file that declares this reflection module." 
+            (
+            SWITCH_OPTION( ModuleHeaderFile ),
+            po::value<std::string>()->required( ),
+            "Header file that declares this reflection module."
         )
-        ( 
-            SWITCH_OPTION( OutputModuleSource ), 
-            po::value<std::string>( )->required( ), 
-            "Output generated C++ module source file." 
+        (
+            SWITCH_OPTION( OutputModuleSource ),
+            po::value<std::string>()->required( ),
+            "Output generated C++ module source file."
         )
-        ( 
-            SWITCH_OPTION( OutputModuleFileDirectory ), 
-            po::value<std::string>( )->required( ), 
-            "Output directory for generated C++ module file, header/source files." 
+        (
+            SWITCH_OPTION( OutputModuleFileDirectory ),
+            po::value<std::string>()->required( ),
+            "Output directory for generated C++ module file, header/source files."
         )
-        ( 
-            SWITCH_OPTION( TemplateDirectory ), 
-            po::value<std::string>( )->default_value( "Templates/" ), 
-            "Directory that contains the mustache templates." 
+        (
+            SWITCH_OPTION( TemplateDirectory ),
+            po::value<std::string>()->default_value( "Templates/" ),
+            "Directory that contains the mustache templates."
         )
-        ( 
-            SWITCH_OPTION( PrecompiledHeader ), 
-            po::value<std::string>( ), 
-            "Optional name of the precompiled header file for the project." 
+        (
+            SWITCH_OPTION( PrecompiledHeader ),
+            po::value<std::string>(),
+            "Optional name of the precompiled header file for the project."
         )
         (
             SWITCH_OPTION( ForceRebuild ),
@@ -85,14 +85,14 @@ int main(int argc, char *argv[])
             SWITCH_OPTION( DisplayDiagnostics ),
             "Whether or not to display diagnostics from clang."
         )
-        ( 
-            SWITCH_OPTION( CompilerIncludes ), 
-            po::value<std::string>( ),
-            "Optional file that includes the include directories for this target." 
+        (
+            SWITCH_OPTION( CompilerIncludes ),
+            po::value<std::string>(),
+            "Optional file that includes the include directories for this target."
         )
         (
             SWITCH_OPTION( CompilerDefines ),
-            po::value<std::vector<std::string>>( )->multitoken( ),
+            po::value<std::vector<std::string>>()->multitoken( ),
             "Optional list of definitions to include for the compiler."
         );
 
