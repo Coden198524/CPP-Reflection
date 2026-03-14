@@ -112,9 +112,10 @@ public:
 | 依赖 | 最低版本 | 用途 |
 |------|----------|------|
 | LLVM / LibClang | 3.8.0 | Parser 解析 C++ AST |
-| Boost | 1.59.0 | 工具库支持 |
-| C++ 编译器 | C++11 | MSVC 14 / G++ 4.8 / Clang++ 3.6 |
+| C++ 编译器 | C++17 | MSVC 15 / G++ 7.0 / Clang++ 5.0 |
 | CMake | 3.0+ | 构建系统 |
+
+> **注意：** 从此版本开始，不再需要 Boost 依赖。解析器使用 C++17 标准库。
 
 ---
 
@@ -132,7 +133,7 @@ cmake --build . --target MetaRuntime
 
 ```bash
 mkdir Build && cd Build
-cmake -G "<生成器>" ../Source/Parser -DLLVM_ROOT=<LLVM路径> -DBOOST_ROOT=<Boost路径>
+cmake -G "<生成器>" ../Source/Parser -DLLVM_ROOT=<LLVM路径>
 cmake --build . --target MetaParser
 ```
 
@@ -140,7 +141,7 @@ cmake --build . --target MetaParser
 
 ```bash
 mkdir Build && cd Build
-cmake -G "<生成器>" ../Examples -DLLVM_ROOT=<LLVM路径> -DBOOST_ROOT=<Boost路径>
+cmake -G "<生成器>" ../Examples -DLLVM_ROOT=<LLVM路径>
 cmake --build .
 ```
 

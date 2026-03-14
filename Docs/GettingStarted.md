@@ -18,11 +18,10 @@
 | 工具 | 最低版本 | 说明 |
 |------|----------|------|
 | CMake | 3.0+ | 构建系统 |
-| C++ 编译器 | C++11 | MSVC 14 / G++ 4.8 / Clang++ 3.6 |
+| C++ 编译器 | C++17 | MSVC 15 / G++ 7.0 / Clang++ 5.0 |
 | LLVM / LibClang | 3.8.0 | Parser 依赖 |
-| Boost | 1.59.0 | Parser 依赖 |
 
-> 注意：如果你只使用 Runtime 库（不运行 Parser），则不需要 LLVM 和 Boost。
+> 注意：如果你只使用 Runtime 库（不运行 Parser），则不需要 LLVM。
 
 ---
 
@@ -54,25 +53,7 @@ sudo apt-get install libclang-3.8-dev
 export LLVM_ROOT=/usr/lib/llvm-3.8
 ```
 
-### 安装 Boost 1.59
-
-从 [Boost 官网](https://sourceforge.net/projects/boost/files/boost/1.59.0/) 下载源码，然后按照以下步骤编译：
-
-**Unix 系统：**
-
-```bash
-./bootstrap.sh
-./b2 install
-export BOOST_ROOT=/usr/local
-```
-
-**Windows：**
-
-```bat
-bootstrap.bat
-b2 install
-set BOOST_ROOT=C:\boost_1_59_0
-```
+> **注意：** 从此版本开始，不再需要 Boost 依赖。解析器使用 C++17 标准库。
 
 ---
 
@@ -105,7 +86,7 @@ cmake --build . --target MetaRuntime --config Release
 
 ## 第三步：构建解析器
 
-解析器（MetaParser）需要 LLVM 和 Boost 依赖。
+解析器（MetaParser）需要 LLVM 依赖。
 
 ```bash
 mkdir Build && cd Build
@@ -115,8 +96,7 @@ cmake -G "Unix Makefiles" ../Source/Parser
 
 # 如果未设置环境变量，手动指定路径
 cmake -G "Unix Makefiles" ../Source/Parser \
-    -DLLVM_ROOT=/usr/lib/llvm-3.8 \
-    -DBOOST_ROOT=/usr/local
+    -DLLVM_ROOT=/usr/lib/llvm-3.8
 
 cmake --build . --target MetaParser
 ```
@@ -129,8 +109,7 @@ cmake --build . --target MetaParser
 mkdir Build && cd Build
 
 cmake -G "Unix Makefiles" ../Examples \
-    -DLLVM_ROOT=$LLVM_ROOT \
-    -DBOOST_ROOT=$BOOST_ROOT
+    -DLLVM_ROOT=$LLVM_ROOT
 
 cmake --build .
 ```
@@ -378,7 +357,7 @@ Variant val = e.GetValue("Value");
 cmake_minimum_required(VERSION 3.0)
 project(MyProject)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 
 # 添加 MetaRuntime 库
 add_subdirectory(path/to/CPP-Reflection/Source/Runtime)

@@ -1,2 +1,13 @@
 # Auto Claude data directory
 .auto-claude/
+
+# Build artifacts
+build/
+Build/
+
+# Log files
+*.log
+
+# Auto-claude configuration files
+.auto-claude-*
+.claude_settings.json

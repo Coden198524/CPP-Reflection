@@ -289,7 +289,7 @@ using namespace meta;
 | 特性 | CPP-Reflection | RTTR | Boost.Reflect |
 |------|---------------|------|---------------|
 | 元数据生成 | 自动（Parser） | 手动注册 | 手动注册 |
-| 依赖 | LibClang, Boost | 无 | Boost |
+| 依赖 | LibClang | 无 | Boost |
 | 注解语法 | Meta() 宏 | 无 | 无 |
 | 数组支持 | 统一 ArrayWrapper | 有 | 有限 |
 | 序列化 | 内置 JSON | 无 | 无 |
