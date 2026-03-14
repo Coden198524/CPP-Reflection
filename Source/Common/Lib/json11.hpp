@@ -214,6 +214,7 @@ protected:
     friend class Json;
     friend class JsonInt;
     friend class JsonDouble;
+    friend class JsonNull;
     virtual Json::Type type() const = 0;
     virtual bool equals(const JsonValue * other) const = 0;
     virtual bool less(const JsonValue * other) const = 0;
