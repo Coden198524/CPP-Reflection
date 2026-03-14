@@ -71,25 +71,6 @@ set(SOURCE_FILES
     LanguageTypes/Method.cpp
 )
 
-set(Boost_USE_STATIC_LIBS ON)
-set(Boost_USE_MULTITHREADED ON)
-set(Boost_NO_SYSTEM_PATHS ON)
-set(Boost_ALL_NO_LIB ON)
-
-# disable auto-linking
-add_definitions(-DBOOST_ALL_NO_LIB)
-
-find_package(Boost 1.59.0 REQUIRED 
-    COMPONENTS 
-    system
-    filesystem
-    program_options
-    regex
-)
-
-# add boost includes
-include_directories(${Boost_INCLUDE_DIRS})
-
 # allow use of Common and Library directories
 include_directories(.)
 include_directories(..)
@@ -99,9 +80,6 @@ include_directories(../Common/Lib)
 # header files are superflous, but some IDEs (Visual Studio) don't include
 # them in the solution explorer without them being added to the list of sources
 add_executable(MetaParser ${HEADER_FILES} ${SOURCE_FILES})
-
-# statically link with Boost
-target_link_libraries(MetaParser ${Boost_LIBRARIES})
 
 set_precompiled_header(MetaParser Precompiled.h Precompiled.cpp)
 
