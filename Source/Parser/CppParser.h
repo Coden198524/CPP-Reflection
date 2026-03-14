@@ -95,6 +95,9 @@ private:
     void pushScope(const std::string &name, bool isClass = false);
     void popScope(void);
     std::string getCurrentNamespace(void) const;
+    std::string getCurrentClassName(void) const;
+    AccessSpecifier getCurrentAccessSpecifier(void) const;
+    void setCurrentAccessSpecifier(AccessSpecifier access);
 
     std::stack<ScopeContext> m_scopeStack;
 

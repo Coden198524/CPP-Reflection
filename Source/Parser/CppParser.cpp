@@ -550,6 +550,9 @@ void CppParser::parseClassBody(ClassNode *classNode)
 {
     AccessSpecifier currentAccess = classNode->accessModifier;
 
+    // Update the scope's current access specifier
+    setCurrentAccessSpecifier(currentAccess);
+
     while (!peek("}") && !isEOF())
     {
         std::string token = currentToken();
@@ -558,6 +561,7 @@ void CppParser::parseClassBody(ClassNode *classNode)
         if (isAccessSpecifier(token))
         {
             currentAccess = parseAccessSpecifier();
+            setCurrentAccessSpecifier(currentAccess);
             expect(":");
             continue;
         }
@@ -974,9 +978,52 @@ bool CppParser::isEOF(void) const
 void CppParser::pushScope(const std::string &name, bool isClass)
 {
     ScopeContext ctx;
-    ctx.namespaceName = name;
+
+    // Build the full namespace path from parent scopes
+    if (!m_scopeStack.empty())
+    {
+        const ScopeContext &parent = m_scopeStack.top();
+
+        // Inherit namespace from parent
+        if (!parent.namespaceName.empty())
+        {
+            ctx.namespaceName = parent.namespaceName;
+        }
+
+        // Inherit class context from parent if we're in a nested class
+        if (!parent.className.empty() && isClass)
+        {
+            ctx.className = parent.className;
+        }
+
+        // Inherit access specifier from parent scope
+        ctx.currentAccess = parent.currentAccess;
+
+        // Inherit brace depth
+        ctx.braceDepth = parent.braceDepth;
+    }
+
+    // Add current scope to the namespace path
     if (isClass)
-        ctx.className = name;
+    {
+        // For classes, append to the class name path
+        if (!ctx.className.empty())
+            ctx.className += "::" + name;
+        else
+            ctx.className = name;
+
+        // Set default access for class (private)
+        ctx.currentAccess = AccessSpecifier::Private;
+    }
+    else
+    {
+        // For namespaces, append to the namespace path
+        if (!ctx.namespaceName.empty())
+            ctx.namespaceName += "::" + name;
+        else
+            ctx.namespaceName = name;
+    }
+
     m_scopeStack.push(ctx);
 }
 
@@ -988,20 +1035,50 @@ void CppParser::popScope(void)
 
 std::string CppParser::getCurrentNamespace(void) const
 {
-    std::string ns;
-    std::stack<ScopeContext> temp = m_scopeStack;
+    if (m_scopeStack.empty())
+        return "";
 
-    while (!temp.empty())
+    const ScopeContext &ctx = m_scopeStack.top();
+
+    // Build the full qualified name
+    std::string result;
+
+    if (!ctx.namespaceName.empty())
     {
-        if (!temp.top().namespaceName.empty())
-        {
-            if (!ns.empty())
-                ns = temp.top().namespaceName + "::" + ns;
-            else
-                ns = temp.top().namespaceName;
-        }
-        temp.pop();
+        result = ctx.namespaceName;
     }
 
-    return ns;
+    if (!ctx.className.empty())
+    {
+        if (!result.empty())
+            result += "::" + ctx.className;
+        else
+            result = ctx.className;
+    }
+
+    return result;
+}
+
+std::string CppParser::getCurrentClassName(void) const
+{
+    if (m_scopeStack.empty())
+        return "";
+
+    return m_scopeStack.top().className;
+}
+
+AccessSpecifier CppParser::getCurrentAccessSpecifier(void) const
+{
+    if (m_scopeStack.empty())
+        return AccessSpecifier::Public;
+
+    return m_scopeStack.top().currentAccess;
+}
+
+void CppParser::setCurrentAccessSpecifier(AccessSpecifier access)
+{
+    if (!m_scopeStack.empty())
+    {
+        m_scopeStack.top().currentAccess = access;
+    }
 }
