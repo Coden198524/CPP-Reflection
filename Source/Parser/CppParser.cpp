@@ -675,6 +675,7 @@ void CppParser::parseClassBody(ClassNode *classNode)
     {
         std::string token = currentToken();
 
+        // Handle access specifiers
         if (isAccessSpecifier(token))
         {
             currentAccess = parseAccessSpecifier();
@@ -682,21 +683,120 @@ void CppParser::parseClassBody(ClassNode *classNode)
             continue;
         }
 
+        // Handle nested class/struct
         if (token == "class" || token == "struct")
         {
             auto nested = (token == "class") ? parseClass() : parseStruct();
             if (nested)
                 classNode->children.push_back(nested);
+            continue;
         }
-        else if (token == "enum")
+
+        // Handle nested enum
+        if (token == "enum")
         {
             auto enumNode = parseEnum();
             if (enumNode)
                 classNode->children.push_back(enumNode);
+            continue;
+        }
+
+        // Check if this is a constructor (name matches class name)
+        if (token == classNode->name)
+        {
+            auto ctorNode = parseConstructor(currentAccess);
+            if (ctorNode)
+                classNode->children.push_back(ctorNode);
+            continue;
+        }
+
+        // Check if this is a destructor
+        if (token == "~" && peek(classNode->name, 1))
+        {
+            advance(); // skip ~
+            auto dtorNode = parseConstructor(currentAccess);
+            if (dtorNode)
+            {
+                dtorNode->kind = CursorKind::Destructor;
+                classNode->children.push_back(dtorNode);
+            }
+            continue;
+        }
+
+        // Check for storage class specifiers
+        bool isStatic = false;
+        bool isVirtual = false;
+        bool isMutable = false;
+
+        while (isStorageClass(token) || token == "virtual" || token == "inline" || token == "explicit")
+        {
+            if (token == "static")
+                isStatic = true;
+            else if (token == "virtual")
+                isVirtual = true;
+            else if (token == "mutable")
+                isMutable = true;
+
+            advance();
+            token = currentToken();
+        }
+
+        // Try to determine if this is a method or field
+        // Look ahead to see if there's a function signature
+        int lookahead = 0;
+        bool isMethod = false;
+
+        // Skip type tokens to find potential function name and parentheses
+        while (lookahead < 10)
+        {
+            size_t index = m_currentTokenIndex + lookahead;
+            if (index >= m_tokens.size())
+                break;
+
+            std::string ahead = m_tokens[index];
+            if (ahead == "(")
+            {
+                isMethod = true;
+                break;
+            }
+            else if (ahead == ";" || ahead == "=" || ahead == "{" || ahead == "}")
+            {
+                break;
+            }
+            lookahead++;
+        }
+
+        if (isMethod)
+        {
+            // Parse as method
+            auto methodNode = parseMethod(currentAccess);
+            if (methodNode)
+            {
+                if (isStatic)
+                {
+                    methodNode->kind = CursorKind::CXXMethod;
+                    methodNode->isStatic = true;
+                }
+                classNode->children.push_back(methodNode);
+            }
         }
         else
         {
-            advance();
+            // Parse as field
+            auto fieldNode = parseField(currentAccess);
+            if (fieldNode)
+            {
+                if (isStatic)
+                {
+                    fieldNode->kind = CursorKind::VarDecl;
+                    fieldNode->storageClass = StorageClass::Static;
+                }
+                else if (isMutable)
+                {
+                    fieldNode->storageClass = StorageClass::Mutable;
+                }
+                classNode->children.push_back(fieldNode);
+            }
         }
     }
 }
