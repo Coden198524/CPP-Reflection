@@ -7,16 +7,21 @@
 #pragma once
 
 #include "CursorType.h"
+#include "ASTNode.h"
+#include "ASTTypes.h"
+#include <functional>
+
+class ASTNode;
 
 class Cursor
 {
 public:
     typedef std::vector<Cursor> List;
-    typedef CXCursorVisitor Visitor;
+    typedef std::function<void(const Cursor&, const Cursor&)> Visitor;
 
-    Cursor(const CXCursor &handle);
+    Cursor(ASTNode *node);
 
-    CXCursorKind GetKind(void) const;
+    CursorKind GetKind(void) const;
 
     Cursor GetLexicalParent(void) const;
     Cursor GetTemplateSpecialization(void) const;
@@ -32,8 +37,8 @@ public:
     bool IsConst(void) const;
     bool IsStatic(void) const;
 
-    CX_CXXAccessSpecifier GetAccessModifier(void) const;
-    CX_StorageClass GetStorageClass(void) const;
+    AccessSpecifier GetAccessModifier(void) const;
+    StorageClass GetStorageClass(void) const;
 
     CursorType GetType(void) const;
     CursorType GetReturnType(void) const;
@@ -45,5 +50,5 @@ public:
     unsigned GetHash(void) const;
 
 private:
-    CXCursor m_handle;
+    ASTNode *m_handle;
 };

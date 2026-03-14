@@ -10,145 +10,181 @@
 
 #include "MetaUtils.h"
 
-Cursor::Cursor(const CXCursor &handle)
-    : m_handle( handle ) { }
+Cursor::Cursor(ASTNode *node)
+    : m_handle( node ) { }
 
-CXCursorKind Cursor::GetKind(void) const
+CursorKind Cursor::GetKind(void) const
 {
-    return m_handle.kind;
+    if (!m_handle)
+        return CursorKind::Unknown;
+
+    return m_handle->GetKind();
 }
 
 Cursor Cursor::GetLexicalParent(void) const
 {
-    return clang_getCursorLexicalParent( m_handle );
+    if (!m_handle)
+        return Cursor(nullptr);
+
+    return Cursor(m_handle->GetParent());
 }
 
 Cursor Cursor::GetTemplateSpecialization(void) const
 {
-    return clang_getSpecializedCursorTemplate( m_handle );
+    // Template specialization not yet implemented in AST
+    return Cursor(nullptr);
 }
 
 std::string Cursor::GetSpelling(void) const
 {
-    std::string spelling;
+    if (!m_handle)
+        return "";
 
-    utils::ToString( clang_getCursorSpelling( m_handle ), spelling );
-
-    return spelling;
+    return m_handle->GetSpelling();
 }
 
 std::string Cursor::GetDisplayName(void) const
 {
-    std::string displayName;
+    if (!m_handle)
+        return "";
 
-    utils::ToString( clang_getCursorDisplayName( m_handle ), displayName );
-
-    return displayName;
+    return m_handle->GetSpelling();
 }
 
 std::string Cursor::GetMangledName(void) const
 {
-    std::string mangled;
-
-    utils::ToString( clang_Cursor_getMangling( m_handle ), mangled );
-
-    return mangled;
+    // Mangled names not yet implemented in AST
+    return "";
 }
 
 std::string Cursor::GetUSR(void) const
 {
-    std::string usr;
-
-    utils::ToString( clang_getCursorUSR( m_handle ), usr );
-
-    return usr;
+    // USR not yet implemented in AST
+    return "";
 }
 
 std::string Cursor::GetSourceFile(void) const
 {
-    auto range = clang_Cursor_getSpellingNameRange( m_handle, 0, 0 );
-
-    auto start = clang_getRangeStart( range );
-
-    CXFile file;
-    unsigned line, column, offset;
-
-    clang_getFileLocation( start, &file, &line, &column, &offset );
-
-    std::string filename;
-
-    utils::ToString( clang_getFileName( file ), filename );
-
-    return filename;
+    // Source file tracking not yet implemented in AST
+    return "";
 }
 
 bool Cursor::IsDefinition(void) const
 {
-    return clang_isCursorDefinition( m_handle ) ? true : false;
+    // For now, assume all nodes are definitions
+    return m_handle != nullptr;
 }
 
 bool Cursor::IsConst(void) const
 {
-    return clang_CXXMethod_isConst( m_handle ) ? true : false;
+    if (!m_handle)
+        return false;
+
+    if (auto method = dynamic_cast<MethodNode*>(m_handle))
+        return method->IsConst();
+
+    if (auto field = dynamic_cast<FieldNode*>(m_handle))
+        return field->IsConst();
+
+    return false;
 }
 
 bool Cursor::IsStatic(void) const
 {
-    return clang_CXXMethod_isStatic( m_handle ) ? true : false;
+    if (!m_handle)
+        return false;
+
+    if (auto method = dynamic_cast<MethodNode*>(m_handle))
+        return method->IsStatic();
+
+    if (auto field = dynamic_cast<FieldNode*>(m_handle))
+        return field->IsStatic();
+
+    return false;
 }
 
-CX_CXXAccessSpecifier Cursor::GetAccessModifier(void) const
+AccessSpecifier Cursor::GetAccessModifier(void) const
 {
-    return clang_getCXXAccessSpecifier( m_handle );
+    if (!m_handle)
+        return AccessSpecifier::Invalid;
+
+    if (auto classNode = dynamic_cast<ClassNode*>(m_handle))
+        return classNode->GetAccessSpecifier();
+
+    if (auto method = dynamic_cast<MethodNode*>(m_handle))
+        return method->GetAccessSpecifier();
+
+    if (auto field = dynamic_cast<FieldNode*>(m_handle))
+        return field->GetAccessSpecifier();
+
+    if (auto enumNode = dynamic_cast<EnumNode*>(m_handle))
+        return enumNode->GetAccessSpecifier();
+
+    return AccessSpecifier::Invalid;
 }
 
-CX_StorageClass Cursor::GetStorageClass(void) const
+StorageClass Cursor::GetStorageClass(void) const
 {
-    return clang_Cursor_getStorageClass( m_handle );
+    if (!m_handle)
+        return StorageClass::Invalid;
+
+    if (auto field = dynamic_cast<FieldNode*>(m_handle))
+        return field->GetStorageClass();
+
+    return StorageClass::None;
 }
 
 CursorType Cursor::GetType(void) const
 {
-    return clang_getCursorType( m_handle );
+    // Type information not yet fully implemented
+    // Return a placeholder CursorType
+    return CursorType(CXType());
 }
 
 CursorType Cursor::GetReturnType(void) const
 {
-    return clang_getCursorResultType( m_handle );
+    // Return type information not yet fully implemented
+    return CursorType(CXType());
 }
 
 CursorType Cursor::GetTypedefType(void) const
 {
-    return clang_getTypedefDeclUnderlyingType( m_handle );
+    // Typedef type information not yet fully implemented
+    return CursorType(CXType());
 }
 
 Cursor::List Cursor::GetChildren(void) const
 {
     List children;
 
-    auto visitor = [](CXCursor cursor, CXCursor parent, CXClientData data)
+    if (!m_handle)
+        return children;
+
+    const auto& astChildren = m_handle->GetChildren();
+    for (const auto& child : astChildren)
     {
-        auto container = static_cast<List *>( data );
-
-        container->emplace_back( cursor );
-
-        if (cursor.kind == CXCursor_LastPreprocessing)
-            return CXChildVisit_Break;
-
-        return CXChildVisit_Continue;
-    };
-
-    clang_visitChildren( m_handle, visitor, &children );
+        children.emplace_back(child.get());
+    }
 
     return children;
 }
 
 void Cursor::VisitChildren(Visitor visitor, void *data)
 {
-    clang_visitChildren( m_handle, visitor, data );
+    if (!m_handle || !visitor)
+        return;
+
+    const auto& children = m_handle->GetChildren();
+    for (const auto& child : children)
+    {
+        Cursor childCursor(child.get());
+        Cursor parentCursor(m_handle);
+        visitor(childCursor, parentCursor);
+    }
 }
 
 unsigned Cursor::GetHash(void) const
 {
-    return clang_hashCursor( m_handle );
+    // Simple hash based on pointer address
+    return static_cast<unsigned>(reinterpret_cast<uintptr_t>(m_handle));
 }
