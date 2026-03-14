@@ -42,7 +42,15 @@ CppParser::ASTNodePtr CppParser::Parse(const std::string &sourceFile)
     // For now, use simple whitespace-based tokenization as placeholder
     // This will be replaced with proper lexical analysis
 
-    return parseTranslationUnit();
+    auto root = parseTranslationUnit();
+
+    // Set source file on all nodes in the AST
+    if (root)
+    {
+        setSourceFileRecursive(root, sourceFile);
+    }
+
+    return root;
 }
 
 CppParser::ASTNodePtr CppParser::parseTranslationUnit(void)
@@ -1080,5 +1088,18 @@ void CppParser::setCurrentAccessSpecifier(AccessSpecifier access)
     if (!m_scopeStack.empty())
     {
         m_scopeStack.top().currentAccess = access;
+    }
+}
+
+void CppParser::setSourceFileRecursive(ASTNodePtr node, const std::string &sourceFile)
+{
+    if (!node)
+        return;
+
+    node->SetSourceFile(sourceFile);
+
+    for (auto &child : node->GetChildren())
+    {
+        setSourceFileRecursive(child, sourceFile);
     }
 }

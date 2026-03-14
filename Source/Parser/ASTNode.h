@@ -32,11 +32,15 @@ public:
     void SetParent(ASTNode *parent);
     ASTNode* GetParent(void) const;
 
+    void SetSourceFile(const std::string &sourceFile);
+    std::string GetSourceFile(void) const;
+
 protected:
     CursorKind m_kind;
     std::string m_spelling;
     unsigned m_line;
     unsigned m_column;
+    std::string m_sourceFile;
 
     std::vector<std::shared_ptr<ASTNode>> m_children;
     ASTNode *m_parent;

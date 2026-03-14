@@ -99,6 +99,8 @@ private:
     AccessSpecifier getCurrentAccessSpecifier(void) const;
     void setCurrentAccessSpecifier(AccessSpecifier access);
 
+    void setSourceFileRecursive(ASTNodePtr node, const std::string &sourceFile);
+
     std::stack<ScopeContext> m_scopeStack;
 
     // Tokenization state

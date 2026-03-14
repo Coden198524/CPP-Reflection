@@ -65,8 +65,10 @@ std::string Cursor::GetUSR(void) const
 
 std::string Cursor::GetSourceFile(void) const
 {
-    // Source file tracking not yet implemented in AST
-    return "";
+    if (!m_handle)
+        return "";
+
+    return m_handle->GetSourceFile();
 }
 
 bool Cursor::IsDefinition(void) const

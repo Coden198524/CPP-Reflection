@@ -62,6 +62,16 @@ ASTNode* ASTNode::GetParent(void) const
     return m_parent;
 }
 
+void ASTNode::SetSourceFile(const std::string &sourceFile)
+{
+    m_sourceFile = sourceFile;
+}
+
+std::string ASTNode::GetSourceFile(void) const
+{
+    return m_sourceFile;
+}
+
 // ClassNode implementation
 ClassNode::ClassNode(const std::string &name, unsigned line, unsigned column, bool isStruct)
     : ASTNode(isStruct ? CursorKind::StructDecl : CursorKind::ClassDecl, name, line, column)
