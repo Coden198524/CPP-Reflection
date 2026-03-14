@@ -15,6 +15,8 @@
 #include "LanguageTypes/Function.h"
 #include "LanguageTypes/Enum.h"
 
+#include "CppParser.h"
+
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/predicate.hpp>
@@ -55,75 +57,54 @@ namespace
 
 ReflectionParser::ReflectionParser(const ReflectionOptions &options)
     : m_options( options )
-    , m_index( nullptr )
-    , m_translationUnit( nullptr )
     , m_moduleFileHeaderTemplate( "" )
     , m_moduleFileSourceTemplate( "" )
 {
     // replace special characters in target name with underscores
     m_options.targetName = boost::regex_replace(
-        m_options.targetName, 
-        kSpecialCharsRegex, 
-        "_" 
+        m_options.targetName,
+        kSpecialCharsRegex,
+        "_"
     );
 }
 
 ReflectionParser::~ReflectionParser(void)
 {
-    if (m_translationUnit)
-        clang_disposeTranslationUnit( m_translationUnit );
-
-    if (m_index)
-        clang_disposeIndex( m_index );
 }
 
 void ReflectionParser::Parse(void)
 {
-    m_index = clang_createIndex( true, m_options.displayDiagnostics );
+    // Use new CppParser instead of libclang
+    CppParser parser;
 
-    std::vector<const char *> arguments;
-
-#if defined(SYSTEM_INCLUDE_DIRECTORY)
-
-    arguments.emplace_back( "-I" SYSTEM_INCLUDE_DIRECTORY );
-
-#endif
-
-    for (auto &argument : m_options.arguments)
-        arguments.emplace_back( argument.c_str( ) );
-
-    if (m_options.displayDiagnostics)
+    // Parse each input source file
+    for (auto &sourceFile : m_options.inputSourceFiles)
     {
-        for (auto *argument : arguments)
-            std::cout << argument << std::endl;
+        auto rootNode = parser.Parse( sourceFile );
+
+        if (!rootNode)
+            continue;
+
+        // Create cursor from root AST node
+        Cursor cursor( rootNode.get( ) );
+
+        Namespace tempNamespace;
+
+        // Build language types from AST
+        buildClasses( cursor, tempNamespace );
+
+        tempNamespace.clear( );
+
+        buildGlobals( cursor, tempNamespace );
+
+        tempNamespace.clear( );
+
+        buildGlobalFunctions( cursor, tempNamespace );
+
+        tempNamespace.clear( );
+
+        buildEnums( cursor, tempNamespace );
     }
-
-    m_translationUnit = clang_createTranslationUnitFromSourceFile(
-        m_index,
-        m_options.inputSourceFile.c_str( ),
-        static_cast<int>( arguments.size( ) ),
-        arguments.data( ),
-        0,
-        nullptr
-    );
-
-    auto cursor = clang_getTranslationUnitCursor( m_translationUnit );
-
-    Namespace tempNamespace;
-
-    buildClasses( cursor, tempNamespace );
-
-    tempNamespace.clear( );
-
-    buildGlobals( cursor, tempNamespace );
-
-    tempNamespace.clear( );
-
-    buildGlobalFunctions( cursor, tempNamespace );
-
-    tempNamespace.clear( );
-
-    buildEnums( cursor, tempNamespace );
 }
 
 void ReflectionParser::GenerateFiles(void)

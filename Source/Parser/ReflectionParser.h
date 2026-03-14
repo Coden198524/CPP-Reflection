@@ -42,9 +42,6 @@ public:
 private:
     ReflectionOptions m_options;
 
-    CXIndex m_index;
-    CXTranslationUnit m_translationUnit;
-
     MustacheTemplate m_moduleFileHeaderTemplate;
     MustacheTemplate m_moduleFileSourceTemplate;
 
