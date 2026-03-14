@@ -49,9 +49,31 @@ The installation should be located in `/usr/lib/llvm-3.8`
 
 Once installed, set an environment variable `LLVM_ROOT` to the root of the installation directory. You can skip this step, but an environment variable makes the CMake command simpler.
 
-##### Install Boost 1.59
+##### Install Boost 1.59+
 
-This part sucks, but we've gotta do it. Download the [sources](https://sourceforge.net/projects/boost/files/boost/1.59.0/) and build it using [these instructions](http://www.boost.org/doc/libs/1_59_0/more/getting_started/unix-variants.html#easy-build-and-install).
+The Parser requires Boost 1.59.0 or later with the following components:
+- system
+- filesystem
+- program_options
+- regex
+
+**Installation Options:**
+
+**Windows** - Download pre-built binaries from [SourceForge](https://sourceforge.net/projects/boost/files/boost/) or build from [source](https://www.boost.org/users/history/).
+
+**Linux (Debian/Ubuntu)**
+
+    sudo apt-get install libboost-system-dev libboost-filesystem-dev libboost-program-options-dev libboost-regex-dev
+
+**Linux (Fedora/RHEL)**
+
+    sudo dnf install boost-devel
+
+**macOS (Homebrew)**
+
+    brew install boost
+
+**Building from Source** - Download the [sources](https://sourceforge.net/projects/boost/files/boost/1.59.0/) and build using [these instructions](http://www.boost.org/doc/libs/1_59_0/more/getting_started/unix-variants.html#easy-build-and-install).
 
 Once installed, set an environment variable to `BOOST_ROOT` like we did for LLVM.
 
