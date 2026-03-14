@@ -9,8 +9,6 @@
 #include "LanguageTypes/Class.h"
 #include "LanguageTypes/Constructor.h"
 
-#include <boost/algorithm/string/join.hpp>
-
 Constructor::Constructor(
     const Cursor &cursor, 
     const Namespace &currentNamespace, 
@@ -82,5 +80,5 @@ std::string Constructor::getTemplateParameters(bool isDynamic) const
     // Args...
     params.insert( params.end( ), m_signature.begin( ), m_signature.end( ) );
 
-    return boost::join( params, ", " );
+    return utils::Join( params, ", " );
 }
