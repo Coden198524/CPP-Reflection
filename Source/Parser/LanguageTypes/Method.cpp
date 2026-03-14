@@ -9,8 +9,9 @@
 #include "LanguageTypes/Class.h"
 #include "LanguageTypes/Method.h"
 
-#include <boost/format.hpp>
-#include <boost/algorithm/string/join.hpp>
+#include "../StringUtils.h"
+
+#include <sstream>
 
 Method::Method(
     const Cursor &cursor, 
@@ -62,13 +63,12 @@ bool Method::isAccessible(void) const
 
 std::string Method::getQualifiedSignature(void) const
 {
-    auto argsList = boost::join( m_signature, ", " );
+    auto argsList = utils::join( m_signature, ", " );
 
     std::string constNess = m_isConst ? " const" : "";
 
-    return (boost::format( "%1%(%2%::*)(%3%)%4%" ) % 
-        m_returnType % 
-        m_parent->m_qualifiedName % 
-        argsList % constNess
-    ).str( );
+    std::stringstream ss;
+    ss << m_returnType << "(" << m_parent->m_qualifiedName << "::*)("
+       << argsList << ")" << constNess;
+    return ss.str();
 }

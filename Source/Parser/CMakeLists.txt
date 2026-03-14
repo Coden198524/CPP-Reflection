@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.10)
 
 project(MetaParser CXX)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/../CMake")
 
 include(Precompiled)
@@ -9,6 +12,7 @@ include(Precompiled)
 set(HEADER_FILES
     ASTNode.h
     ASTTypes.h
+    CommandLineParser.h
     CppParser.h
     Cursor.h
     CursorType.h
@@ -21,6 +25,7 @@ set(HEADER_FILES
     ReflectionOptions.h
     ReflectionParser.h
     ReservedTypes.h
+    StringUtils.h
     Switches.h
     Templates.h
     TypeInfo.h
@@ -50,6 +55,7 @@ set(HEADER_FILES
 
 set(SOURCE_FILES
     ASTNode.cpp
+    CommandLineParser.cpp
     CppParser.cpp
     Cursor.cpp
     CursorType.cpp
@@ -58,6 +64,7 @@ set(SOURCE_FILES
     MetaUtils.cpp
     Precompiled.cpp
     ReflectionParser.cpp
+    StringUtils.cpp
     TypeInfo.cpp
     LanguageTypes/Class.cpp
     LanguageTypes/Constructor.cpp
@@ -90,9 +97,11 @@ if (MSVC)
     target_compile_options(MetaParser
         PUBLIC
         # treat warnings as errors
-        /WX 
+        /WX
         # multi process compilation
         /MP
+        # C++17 standard
+        /std:c++17
     )
 
     # detect version of Visual Studio

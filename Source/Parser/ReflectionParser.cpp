@@ -16,10 +16,9 @@
 #include "LanguageTypes/Enum.h"
 
 #include "CppParser.h"
+#include "StringUtils.h"
 
-#include <boost/regex.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/predicate.hpp>
+#include <regex>
 
 #include <fstream>
 
@@ -52,7 +51,7 @@
 
 namespace
 {
-    const boost::regex kSpecialCharsRegex( "[^a-zA-Z0-9]+" );
+    const std::regex kSpecialCharsRegex( "[^a-zA-Z0-9]+" );
 }
 
 ReflectionParser::ReflectionParser(const ReflectionOptions &options)
@@ -61,7 +60,7 @@ ReflectionParser::ReflectionParser(const ReflectionOptions &options)
     , m_moduleFileSourceTemplate( "" )
 {
     // replace special characters in target name with underscores
-    m_options.targetName = boost::regex_replace(
+    m_options.targetName = std::regex_replace(
         m_options.targetName,
         kSpecialCharsRegex,
         "_"
@@ -162,7 +161,7 @@ void ReflectionParser::GenerateFiles(void)
         auto outputFileSource = change_extension( outputFile, "Generated.cpp" );
 
         // module file name
-        file.second.name = boost::regex_replace(
+        file.second.name = std::regex_replace(
             relativeDir,
             kSpecialCharsRegex,
             "_"
@@ -350,7 +349,7 @@ void ReflectionParser::buildClasses(
             auto displayName = child.GetDisplayName( );
 
             // external declaration; they're always compiled, but only registered
-            if (boost::starts_with( displayName, kMetaExternalTypeDefName ))
+            if (utils::starts_with( displayName, kMetaExternalTypeDefName ))
             {
                 m_externals.emplace_back(
                     std::make_shared<External>( child.GetTypedefType( ).GetDeclaration( ) )
