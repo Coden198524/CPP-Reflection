@@ -7,6 +7,9 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/../CMake")
 include(Precompiled)
 
 set(HEADER_FILES
+    ASTNode.h
+    ASTTypes.h
+    CppParser.h
     Cursor.h
     CursorType.h
     MetaDataConfig.h
@@ -20,6 +23,7 @@ set(HEADER_FILES
     ReservedTypes.h
     Switches.h
     Templates.h
+    TypeInfo.h
     Version.h
     LanguageTypes/Class.h
     LanguageTypes/Constructor.h
@@ -45,6 +49,8 @@ set(HEADER_FILES
 )
 
 set(SOURCE_FILES
+    ASTNode.cpp
+    CppParser.cpp
     Cursor.cpp
     CursorType.cpp
     Main.cpp
@@ -52,6 +58,7 @@ set(SOURCE_FILES
     MetaUtils.cpp
     Precompiled.cpp
     ReflectionParser.cpp
+    TypeInfo.cpp
     LanguageTypes/Class.cpp
     LanguageTypes/Constructor.cpp
     LanguageTypes/Enum.cpp
