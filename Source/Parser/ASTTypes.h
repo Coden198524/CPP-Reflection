@@ -139,3 +139,26 @@ enum class TypeKind
     Auto,
     Elaborated
 };
+
+// Compatibility aliases for old libclang-style names
+constexpr CursorKind CXCursor_StructDecl = CursorKind::StructDecl;
+constexpr CursorKind CXCursor_ClassDecl = CursorKind::ClassDecl;
+constexpr CursorKind CXCursor_EnumDecl = CursorKind::EnumDecl;
+constexpr CursorKind CXCursor_FieldDecl = CursorKind::FieldDecl;
+constexpr CursorKind CXCursor_EnumConstantDecl = CursorKind::EnumConstantDecl;
+constexpr CursorKind CXCursor_FunctionDecl = CursorKind::FunctionDecl;
+constexpr CursorKind CXCursor_VarDecl = CursorKind::VarDecl;
+constexpr CursorKind CXCursor_TypedefDecl = CursorKind::TypedefDecl;
+constexpr CursorKind CXCursor_CXXMethod = CursorKind::CXXMethod;
+constexpr CursorKind CXCursor_Namespace = CursorKind::Namespace;
+constexpr CursorKind CXCursor_Constructor = CursorKind::Constructor;
+constexpr CursorKind CXCursor_CXXBaseSpecifier = CursorKind::CXXBaseSpecifier;
+constexpr CursorKind CXCursor_AnnotateAttr = CursorKind::UnexposedDecl;  // Map to closest equivalent
+
+constexpr AccessSpecifier CX_CXXPublic = AccessSpecifier::Public;
+constexpr AccessSpecifier CX_CXXProtected = AccessSpecifier::Protected;
+constexpr AccessSpecifier CX_CXXPrivate = AccessSpecifier::Private;
+
+constexpr StorageClass CX_SC_Static = StorageClass::Static;
+
+constexpr TypeKind CXType_Typedef = TypeKind::Typedef;
