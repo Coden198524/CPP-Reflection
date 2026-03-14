@@ -139,23 +139,23 @@ void parse(const po::VariablesMap &cmdLine)
     options.displayDiagnostics = 
         cmdLine.count( kSwitchDisplayDiagnostics ) > 0;
 
-    options.targetName = 
-        cmdLine.at( kSwitchTargetName ).as<std::string>( );
+    options.targetName =
+        cmdLine.as<std::string>( kSwitchTargetName );
 
-    options.sourceRoot = 
-        cmdLine.at( kSwitchSourceRoot ).as<std::string>( );
+    options.sourceRoot =
+        cmdLine.as<std::string>( kSwitchSourceRoot );
 
-    options.inputSourceFile = 
-        cmdLine.at( kSwitchInputSource ).as<std::string>( );
+    options.inputSourceFile =
+        cmdLine.as<std::string>( kSwitchInputSource );
 
-    options.moduleHeaderFile = 
-        cmdLine.at( kSwitchModuleHeaderFile ).as<std::string>( );
+    options.moduleHeaderFile =
+        cmdLine.as<std::string>( kSwitchModuleHeaderFile );
 
-    options.outputModuleSource = 
-        cmdLine.at( kSwitchOutputModuleSource ).as<std::string>( );
+    options.outputModuleSource =
+        cmdLine.as<std::string>( kSwitchOutputModuleSource );
 
-    options.outputModuleFileDirectory = 
-        cmdLine.at( kSwitchOutputModuleFileDirectory ).as<std::string>( );
+    options.outputModuleFileDirectory =
+        cmdLine.as<std::string>( kSwitchOutputModuleFileDirectory );
 
     // default arguments
     options.arguments =
@@ -168,14 +168,14 @@ void parse(const po::VariablesMap &cmdLine)
 
     if (cmdLine.count( kSwitchPrecompiledHeader ))
     {
-        options.precompiledHeader = 
-            cmdLine.at( kSwitchPrecompiledHeader ).as<std::string>( );
+        options.precompiledHeader =
+            cmdLine.as<std::string>( kSwitchPrecompiledHeader );
     }
-    
+
     if (cmdLine.count( kSwitchCompilerIncludes ))
     {
-        auto includes = 
-            cmdLine.at( kSwitchCompilerIncludes ).as<std::string>( );
+        auto includes =
+            cmdLine.as<std::string>( kSwitchCompilerIncludes );
 
         std::ifstream includesFile( includes );
 
@@ -187,15 +187,15 @@ void parse(const po::VariablesMap &cmdLine)
 
     if (cmdLine.count( kSwitchCompilerDefines ))
     {
-        auto defines = 
-            cmdLine.at( kSwitchCompilerDefines ).as<std::vector<std::string>>( );
+        auto defines =
+            cmdLine.as<std::vector<std::string>>( kSwitchCompilerDefines );
 
         for (auto &define : defines)
             options.arguments.emplace_back( "-D"+ define );
     }
 
-    options.templateDirectory = 
-        cmdLine.at( kSwitchTemplateDirectory ).as<std::string>( );
+    options.templateDirectory =
+        cmdLine.as<std::string>( kSwitchTemplateDirectory );
     
     std::cout << std::endl;
     std::cout << "Parsing reflection data for target \"" 
