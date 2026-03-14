@@ -9,9 +9,6 @@
 #include "LanguageTypes/Class.h"
 #include "LanguageTypes/Method.h"
 
-#include <boost/format.hpp>
-#include <boost/algorithm/string/join.hpp>
-
 Method::Method(
     const Cursor &cursor, 
     const Namespace &currentNamespace, 
@@ -62,13 +59,9 @@ bool Method::isAccessible(void) const
 
 std::string Method::getQualifiedSignature(void) const
 {
-    auto argsList = boost::join( m_signature, ", " );
+    auto argsList = utils::Join( m_signature, ", " );
 
     std::string constNess = m_isConst ? " const" : "";
 
-    return (boost::format( "%1%(%2%::*)(%3%)%4%" ) % 
-        m_returnType % 
-        m_parent->m_qualifiedName % 
-        argsList % constNess
-    ).str( );
+    return m_returnType + "(" + m_parent->m_qualifiedName + "::*)(" + argsList + ")" + constNess;
 }
