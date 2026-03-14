@@ -1,0 +1,39 @@
+{
+  "sandbox": {
+    "enabled": true,
+    "autoAllowBashIfSandboxed": true
+  },
+  "permissions": {
+    "defaultMode": "acceptEdits",
+    "allow": [
+      "Read(./**)",
+      "Write(./**)",
+      "Edit(./**)",
+      "Glob(./**)",
+      "Grep(./**)",
+      "Read(D:\\Dev\\Rendering\\CPP-Reflection\\.auto-claude\\worktrees\\tasks\\002-failed-to-authenticate-api-error-403-claude-haiku-/**)",
+      "Write(D:\\Dev\\Rendering\\CPP-Reflection\\.auto-claude\\worktrees\\tasks\\002-failed-to-authenticate-api-error-403-claude-haiku-/**)",
+      "Edit(D:\\Dev\\Rendering\\CPP-Reflection\\.auto-claude\\worktrees\\tasks\\002-failed-to-authenticate-api-error-403-claude-haiku-/**)",
+      "Glob(D:\\Dev\\Rendering\\CPP-Reflection\\.auto-claude\\worktrees\\tasks\\002-failed-to-authenticate-api-error-403-claude-haiku-/**)",
+      "Grep(D:\\Dev\\Rendering\\CPP-Reflection\\.auto-claude\\worktrees\\tasks\\002-failed-to-authenticate-api-error-403-claude-haiku-/**)",
+      "Read(D:\\Dev\\Rendering\\CPP-Reflection\\.auto-claude\\worktrees\\tasks\\002-failed-to-authenticate-api-error-403-claude-haiku-\\.auto-claude\\specs\\002-failed-to-authenticate-api-error-403-claude-haiku-/**)",
+      "Write(D:\\Dev\\Rendering\\CPP-Reflection\\.auto-claude\\worktrees\\tasks\\002-failed-to-authenticate-api-error-403-claude-haiku-\\.auto-claude\\specs\\002-failed-to-authenticate-api-error-403-claude-haiku-/**)",
+      "Edit(D:\\Dev\\Rendering\\CPP-Reflection\\.auto-claude\\worktrees\\tasks\\002-failed-to-authenticate-api-error-403-claude-haiku-\\.auto-claude\\specs\\002-failed-to-authenticate-api-error-403-claude-haiku-/**)",
+      "Read(D:\\Dev\\Rendering\\CPP-Reflection\\.auto-claude/**)",
+      "Write(D:\\Dev\\Rendering\\CPP-Reflection\\.auto-claude/**)",
+      "Edit(D:\\Dev\\Rendering\\CPP-Reflection\\.auto-claude/**)",
+      "Glob(D:\\Dev\\Rendering\\CPP-Reflection\\.auto-claude/**)",
+      "Grep(D:\\Dev\\Rendering\\CPP-Reflection\\.auto-claude/**)",
+      "Bash(*)",
+      "WebFetch(*)",
+      "WebSearch(*)",
+      "mcp__context7__resolve-library-id(*)",
+      "mcp__context7__query-docs(*)",
+      "mcp__graphiti-memory__search_nodes(*)",
+      "mcp__graphiti-memory__search_facts(*)",
+      "mcp__graphiti-memory__add_episode(*)",
+      "mcp__graphiti-memory__get_episodes(*)",
+      "mcp__graphiti-memory__get_entity_edge(*)"
+    ]
+  }
+}

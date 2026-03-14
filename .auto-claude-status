@@ -1,0 +1,25 @@
+{
+  "active": true,
+  "spec": "002-failed-to-authenticate-api-error-403-claude-haiku-",
+  "state": "building",
+  "subtasks": {
+    "completed": 11,
+    "total": 13,
+    "in_progress": 1,
+    "failed": 0
+  },
+  "phase": {
+    "current": "Build & Functional Verification",
+    "id": null,
+    "total": 3
+  },
+  "workers": {
+    "active": 0,
+    "max": 1
+  },
+  "session": {
+    "number": 14,
+    "started_at": "2026-03-14T11:43:14.659345"
+  },
+  "last_update": "2026-03-14T12:05:33.767632"
+}
