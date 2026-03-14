@@ -76,34 +76,34 @@ void ReflectionParser::Parse(void)
     // Use new CppParser instead of libclang
     CppParser parser;
 
-    // Parse each input source file
-    for (auto &sourceFile : m_options.inputSourceFiles)
+    // Parse the input source file
+    auto rootNode = parser.Parse( m_options.inputSourceFile );
+
+    if (!rootNode)
     {
-        auto rootNode = parser.Parse( sourceFile );
-
-        if (!rootNode)
-            continue;
-
-        // Create cursor from root AST node
-        Cursor cursor( rootNode.get( ) );
-
-        Namespace tempNamespace;
-
-        // Build language types from AST
-        buildClasses( cursor, tempNamespace );
-
-        tempNamespace.clear( );
-
-        buildGlobals( cursor, tempNamespace );
-
-        tempNamespace.clear( );
-
-        buildGlobalFunctions( cursor, tempNamespace );
-
-        tempNamespace.clear( );
-
-        buildEnums( cursor, tempNamespace );
+        utils::FatalError("Failed to parse input source file: " + m_options.inputSourceFile);
+        return;
     }
+
+    // Create cursor from root AST node
+    Cursor cursor( rootNode.get( ) );
+
+    Namespace tempNamespace;
+
+    // Build language types from AST
+    buildClasses( cursor, tempNamespace );
+
+    tempNamespace.clear( );
+
+    buildGlobals( cursor, tempNamespace );
+
+    tempNamespace.clear( );
+
+    buildGlobalFunctions( cursor, tempNamespace );
+
+    tempNamespace.clear( );
+
+    buildEnums( cursor, tempNamespace );
 }
 
 void ReflectionParser::GenerateFiles(void)
@@ -157,8 +157,10 @@ void ReflectionParser::GenerateFiles(void)
             continue;
 
         auto outputFile = outputFileDirectory / relativeDir;
-        auto outputFileHeader = change_extension( outputFile, "Generated.h" );
-        auto outputFileSource = change_extension( outputFile, "Generated.cpp" );
+        auto outputFileHeader = outputFile;
+        outputFileHeader.replace_extension("Generated.h");
+        auto outputFileSource = outputFile;
+        outputFileSource.replace_extension("Generated.cpp");
 
         // module file name
         file.second.name = std::regex_replace(
@@ -177,10 +179,10 @@ void ReflectionParser::GenerateFiles(void)
         moduleFilesData << moduleFileData;
 
         // if the generated file header/source doesn't exist, we need to regenerate
-        if (m_options.forceRebuild || 
-            !metaCacheFileExists || 
-            !exists( outputFileHeader ) ||
-            !exists( outputFileSource )
+        if (m_options.forceRebuild ||
+            !metaCacheFileExists ||
+            !fs::exists( outputFileHeader ) ||
+            !fs::exists( outputFileSource )
         )
         {
             generateModuleFile( outputFileHeader, outputFileSource, file.first, file.second );
@@ -188,9 +190,9 @@ void ReflectionParser::GenerateFiles(void)
             continue;
         }
 
-        auto lastSourceWrite = last_write_time( filePath );
-        auto lastGeneratedHeaderWrite = last_write_time( outputFileHeader );
-        auto lastGeneratedSourceWrite = last_write_time( outputFileSource );
+        auto lastSourceWrite = fs::last_write_time( filePath );
+        auto lastGeneratedHeaderWrite = fs::last_write_time( outputFileHeader );
+        auto lastGeneratedSourceWrite = fs::last_write_time( outputFileSource );
 
         // if the generated file is older than the source file, we need to regenerate
         if (lastSourceWrite > lastGeneratedHeaderWrite || lastSourceWrite > lastGeneratedSourceWrite)
@@ -244,7 +246,7 @@ void ReflectionParser::GenerateFiles(void)
 
         fs::path sourcePath( m_options.outputModuleSource );
 
-        fs::create_directory( sourcePath.parent_path( ) );
+        fs::create_directories( sourcePath.parent_path( ) );
 
         utils::WriteText( 
             sourcePath.string( ),

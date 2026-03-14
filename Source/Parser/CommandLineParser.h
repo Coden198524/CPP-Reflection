@@ -22,6 +22,7 @@ namespace cmdline
     class Option
     {
     public:
+        Option() = default;  // Add default constructor
         Option(const std::string& name, const std::string& description);
 
         Option& required();

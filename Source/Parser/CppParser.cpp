@@ -4,6 +4,8 @@
 ** CppParser.cpp
 ** --------------------------------------------------------------------------*/
 
+#include "Precompiled.h"
+
 #include "CppParser.h"
 
 #include <fstream>

@@ -14,7 +14,7 @@
 #include <chrono>
 #include <fstream>
 
-void parse(const po::variables_map &cmdLine);
+void parse(const po::VariablesMap &cmdLine);
 
 int main(int argc, char *argv[])
 {
@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
         if (!exeDir.empty( ))
             fs::current_path( exeDir );
 
-        po::options_description program( "Ursine Meta Parser" );
+        po::OptionsDescription program( "Ursine Meta Parser" );
 
         program.add_options( )
         ( 
@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
             "Optional list of definitions to include for the compiler."
         );
 
-        po::variables_map cmdLine;
+        po::VariablesMap cmdLine;
 
         po::store( po::parse_command_line( argc, argv, program ), cmdLine );
 
@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
     return EXIT_SUCCESS;
 }
 
-void parse(const po::variables_map &cmdLine)
+void parse(const po::VariablesMap &cmdLine)
 {
     ReflectionOptions options;
 
