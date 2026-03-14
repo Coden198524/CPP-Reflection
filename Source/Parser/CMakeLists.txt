@@ -83,11 +83,6 @@ find_package(Boost 1.59.0 REQUIRED
 # add boost includes
 include_directories(${Boost_INCLUDE_DIRS})
 
-find_package(LLVM REQUIRED)
-
-# add LLVM includes
-include_directories(${LLVM_INCLUDE_DIRS})
-
 # allow use of Common and Library directories
 include_directories(.)
 include_directories(..)
@@ -98,10 +93,8 @@ include_directories(../Common/Lib)
 # them in the solution explorer without them being added to the list of sources
 add_executable(MetaParser ${HEADER_FILES} ${SOURCE_FILES})
 
-link_directories(${LLVM_LIBRARY_DIR})
-
-# statically link with Boost & LibClang
-target_link_libraries(MetaParser ${Boost_LIBRARIES} ${LIBCLANG_LIBRARY})
+# statically link with Boost
+target_link_libraries(MetaParser ${Boost_LIBRARIES})
 
 set_precompiled_header(MetaParser Precompiled.h Precompiled.cpp)
 
@@ -155,9 +148,5 @@ add_custom_command(TARGET MetaParser POST_BUILD
     # mustache templates directory
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${CMAKE_CURRENT_LIST_DIR}/../../Resources"
-        $<TARGET_FILE_DIR:MetaParser>
-    # LibClang shared library
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        ${LIBCLANG_SHARED_LIBRARY}
         $<TARGET_FILE_DIR:MetaParser>
 )
