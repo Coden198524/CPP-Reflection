@@ -9,8 +9,9 @@
 #include "ASTNode.h"
 
 // ASTNode implementation
-ASTNode::ASTNode(CursorKind kind, const std::string &spelling, unsigned line, unsigned column)
-    : m_kind(kind)
+ASTNode::ASTNode(CursorKind k, const std::string &spelling, unsigned line, unsigned column)
+    : kind(k)
+    , name(spelling)
     , m_spelling(spelling)
     , m_line(line)
     , m_column(column)
@@ -20,7 +21,7 @@ ASTNode::ASTNode(CursorKind kind, const std::string &spelling, unsigned line, un
 
 CursorKind ASTNode::GetKind(void) const
 {
-    return m_kind;
+    return kind;
 }
 
 std::string ASTNode::GetSpelling(void) const
@@ -43,13 +44,13 @@ void ASTNode::AddChild(std::shared_ptr<ASTNode> child)
     if (child)
     {
         child->SetParent(this);
-        m_children.push_back(child);
+        children.push_back(child);
     }
 }
 
 const std::vector<std::shared_ptr<ASTNode>>& ASTNode::GetChildren(void) const
 {
-    return m_children;
+    return children;
 }
 
 void ASTNode::SetParent(ASTNode *parent)

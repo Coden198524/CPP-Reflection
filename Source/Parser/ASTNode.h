@@ -35,14 +35,17 @@ public:
     void SetSourceFile(const std::string &sourceFile);
     std::string GetSourceFile(void) const;
 
+    // Public members for direct access (used by CppParser)
+    CursorKind kind;
+    std::string name;
+    std::vector<std::shared_ptr<ASTNode>> children;
+
 protected:
-    CursorKind m_kind;
     std::string m_spelling;
     unsigned m_line;
     unsigned m_column;
     std::string m_sourceFile;
 
-    std::vector<std::shared_ptr<ASTNode>> m_children;
     ASTNode *m_parent;
 };
 
