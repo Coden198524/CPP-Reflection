@@ -10,18 +10,19 @@
 #include "ReflectionParser.h"
 
 #include "Switches.h"
+#include "ArgParser.h"
 
 #include <chrono>
 #include <fstream>
 
-void parse(const po::variables_map &cmdLine);
+void parse(const ArgParser &cmdLine);
 
 int main(int argc, char *argv[])
 {
     auto start = std::chrono::system_clock::now( );
 
     // parse command line
-    try 
+    try
     {
         // path to the executable
         auto exeDir = fs::path( argv[ 0 ] ).parent_path( );
@@ -30,84 +31,22 @@ int main(int argc, char *argv[])
         if (!exeDir.empty( ))
             fs::current_path( exeDir );
 
-        po::options_description program( "Ursine Meta Parser" );
+        ArgParser cmdLine;
 
-        program.add_options( )
-        ( 
-            SWITCH_OPTION( Help ), 
-            "Displays help information." 
-        )
-        ( 
-            SWITCH_OPTION( TargetName ), 
-            po::value<std::string>( )->required( ),
-            "Input target project name." 
-        )
-        ( 
-            SWITCH_OPTION( SourceRoot ), 
-            po::value<std::string>( )->required( ),
-            "Root source directory that is shared by all header files." 
-        )
-        ( 
-            SWITCH_OPTION( InputSource ), 
-            po::value<std::string>( )->required( ), 
-            "Source file (header) to compile reflection data from." 
-        )
-            ( 
-            SWITCH_OPTION( ModuleHeaderFile ), 
-            po::value<std::string>( )->required( ), 
-            "Header file that declares this reflection module." 
-        )
-        ( 
-            SWITCH_OPTION( OutputModuleSource ), 
-            po::value<std::string>( )->required( ), 
-            "Output generated C++ module source file." 
-        )
-        ( 
-            SWITCH_OPTION( OutputModuleFileDirectory ), 
-            po::value<std::string>( )->required( ), 
-            "Output directory for generated C++ module file, header/source files." 
-        )
-        ( 
-            SWITCH_OPTION( TemplateDirectory ), 
-            po::value<std::string>( )->default_value( "Templates/" ), 
-            "Directory that contains the mustache templates." 
-        )
-        ( 
-            SWITCH_OPTION( PrecompiledHeader ), 
-            po::value<std::string>( ), 
-            "Optional name of the precompiled header file for the project." 
-        )
-        (
-            SWITCH_OPTION( ForceRebuild ),
-            "Whether or not to ignore cache and write the header / source files."
-        )
-        (
-            SWITCH_OPTION( DisplayDiagnostics ),
-            "Whether or not to display diagnostics from clang."
-        )
-        ( 
-            SWITCH_OPTION( CompilerIncludes ), 
-            po::value<std::string>( ),
-            "Optional file that includes the include directories for this target." 
-        )
-        (
-            SWITCH_OPTION( CompilerDefines ),
-            po::value<std::vector<std::string>>( )->multitoken( ),
-            "Optional list of definitions to include for the compiler."
-        );
+        cmdLine.addOption( kSwitchTargetName, true );
+        cmdLine.addOption( kSwitchSourceRoot, true );
+        cmdLine.addOption( kSwitchInputSource, true );
+        cmdLine.addOption( kSwitchModuleHeaderFile, true );
+        cmdLine.addOption( kSwitchOutputModuleSource, true );
+        cmdLine.addOption( kSwitchOutputModuleFileDirectory, true );
+        cmdLine.addOption( kSwitchTemplateDirectory, false, "Templates/" );
+        cmdLine.addOption( kSwitchPrecompiledHeader, false );
+        cmdLine.addFlag( kSwitchForceRebuild );
+        cmdLine.addFlag( kSwitchDisplayDiagnostics );
+        cmdLine.addOption( kSwitchCompilerIncludes, false );
+        cmdLine.addMultiOption( kSwitchCompilerDefines );
 
-        po::variables_map cmdLine;
-
-        po::store( po::parse_command_line( argc, argv, program ), cmdLine );
-
-        if (cmdLine.count( "help" )) 
-        {
-            std::cout << program << std::endl;
-
-            return EXIT_SUCCESS;
-        }
-
-        po::notify( cmdLine );
+        cmdLine.parse( argc, argv );
 
         parse( cmdLine );
     }
@@ -115,47 +54,47 @@ int main(int argc, char *argv[])
     {
         utils::FatalError( e.what( ) );
     }
-    catch (...) 
+    catch (...)
     {
         utils::FatalError( "Unhandled exception occurred!" );
     }
 
     auto duration = std::chrono::system_clock::now( ) - start;
 
-    std::cout << "Completed in " 
-              << std::chrono::duration_cast<std::chrono::milliseconds>( duration ).count( ) 
+    std::cout << "Completed in "
+              << std::chrono::duration_cast<std::chrono::milliseconds>( duration ).count( )
               << "ms" << std::endl;
 
     return EXIT_SUCCESS;
 }
 
-void parse(const po::variables_map &cmdLine)
+void parse(const ArgParser &cmdLine)
 {
     ReflectionOptions options;
 
-    options.forceRebuild = 
-        cmdLine.count( kSwitchForceRebuild ) > 0;
+    options.forceRebuild =
+        cmdLine.has( kSwitchForceRebuild );
 
-    options.displayDiagnostics = 
-        cmdLine.count( kSwitchDisplayDiagnostics ) > 0;
+    options.displayDiagnostics =
+        cmdLine.has( kSwitchDisplayDiagnostics );
 
-    options.targetName = 
-        cmdLine.at( kSwitchTargetName ).as<std::string>( );
+    options.targetName =
+        cmdLine.get( kSwitchTargetName );
 
-    options.sourceRoot = 
-        cmdLine.at( kSwitchSourceRoot ).as<std::string>( );
+    options.sourceRoot =
+        cmdLine.get( kSwitchSourceRoot );
 
-    options.inputSourceFile = 
-        cmdLine.at( kSwitchInputSource ).as<std::string>( );
+    options.inputSourceFile =
+        cmdLine.get( kSwitchInputSource );
 
-    options.moduleHeaderFile = 
-        cmdLine.at( kSwitchModuleHeaderFile ).as<std::string>( );
+    options.moduleHeaderFile =
+        cmdLine.get( kSwitchModuleHeaderFile );
 
-    options.outputModuleSource = 
-        cmdLine.at( kSwitchOutputModuleSource ).as<std::string>( );
+    options.outputModuleSource =
+        cmdLine.get( kSwitchOutputModuleSource );
 
-    options.outputModuleFileDirectory = 
-        cmdLine.at( kSwitchOutputModuleFileDirectory ).as<std::string>( );
+    options.outputModuleFileDirectory =
+        cmdLine.get( kSwitchOutputModuleFileDirectory );
 
     // default arguments
     options.arguments =
@@ -166,16 +105,16 @@ void parse(const po::variables_map &cmdLine)
         "-D__REFLECTION_PARSER__"
     } };
 
-    if (cmdLine.count( kSwitchPrecompiledHeader ))
+    if (cmdLine.has( kSwitchPrecompiledHeader ))
     {
-        options.precompiledHeader = 
-            cmdLine.at( kSwitchPrecompiledHeader ).as<std::string>( );
+        options.precompiledHeader =
+            cmdLine.get( kSwitchPrecompiledHeader );
     }
-    
-    if (cmdLine.count( kSwitchCompilerIncludes ))
+
+    if (cmdLine.has( kSwitchCompilerIncludes ))
     {
-        auto includes = 
-            cmdLine.at( kSwitchCompilerIncludes ).as<std::string>( );
+        auto includes =
+            cmdLine.get( kSwitchCompilerIncludes );
 
         std::ifstream includesFile( includes );
 
@@ -185,21 +124,21 @@ void parse(const po::variables_map &cmdLine)
             options.arguments.emplace_back( "-I"+ include );
     }
 
-    if (cmdLine.count( kSwitchCompilerDefines ))
+    if (cmdLine.has( kSwitchCompilerDefines ))
     {
-        auto defines = 
-            cmdLine.at( kSwitchCompilerDefines ).as<std::vector<std::string>>( );
+        auto defines =
+            cmdLine.getMulti( kSwitchCompilerDefines );
 
         for (auto &define : defines)
             options.arguments.emplace_back( "-D"+ define );
     }
 
-    options.templateDirectory = 
-        cmdLine.at( kSwitchTemplateDirectory ).as<std::string>( );
-    
+    options.templateDirectory =
+        cmdLine.get( kSwitchTemplateDirectory );
+
     std::cout << std::endl;
-    std::cout << "Parsing reflection data for target \"" 
-              << options.targetName << "\"" 
+    std::cout << "Parsing reflection data for target \""
+              << options.targetName << "\""
               << std::endl;
 
     ReflectionParser parser( options );

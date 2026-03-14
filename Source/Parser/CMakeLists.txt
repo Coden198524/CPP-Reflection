@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 2.8.3)
 
 project(MetaParser CXX)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/../CMake")
 
 include(Precompiled)
@@ -64,25 +67,6 @@ set(SOURCE_FILES
     LanguageTypes/Method.cpp
 )
 
-set(Boost_USE_STATIC_LIBS ON)
-set(Boost_USE_MULTITHREADED ON)
-set(Boost_NO_SYSTEM_PATHS ON)
-set(Boost_ALL_NO_LIB ON)
-
-# disable auto-linking
-add_definitions(-DBOOST_ALL_NO_LIB)
-
-find_package(Boost 1.59.0 REQUIRED 
-    COMPONENTS 
-    system
-    filesystem
-    program_options
-    regex
-)
-
-# add boost includes
-include_directories(${Boost_INCLUDE_DIRS})
-
 find_package(LLVM REQUIRED)
 
 # add LLVM includes
@@ -100,8 +84,8 @@ add_executable(MetaParser ${HEADER_FILES} ${SOURCE_FILES})
 
 link_directories(${LLVM_LIBRARY_DIR})
 
-# statically link with Boost & LibClang
-target_link_libraries(MetaParser ${Boost_LIBRARIES} ${LIBCLANG_LIBRARY})
+# link with LibClang
+target_link_libraries(MetaParser ${LIBCLANG_LIBRARY})
 
 set_precompiled_header(MetaParser Precompiled.h Precompiled.cpp)
 
@@ -136,10 +120,6 @@ if (MSVC)
     # normalize slashes
     string(REPLACE "\\" "/" SYSTEM_INCLUDES "${SYSTEM_INCLUDES}")
 else ()
-    target_compile_options(MetaParser
-        PUBLIC -std=c++11
-    )
-
     set(SYSTEM_INCLUDES "/usr/include/c++/${CMAKE_CXX_COMPILER_VERSION}")
 endif ()
 
