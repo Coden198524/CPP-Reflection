@@ -15,15 +15,6 @@
 
 namespace utils
 {
-    void ToString(const CXString &str, std::string &output)
-    {
-        auto cstr = clang_getCString( str );
-
-        output = cstr;
-
-        clang_disposeString( str );
-    }
-
     TemplateData::Type TemplateBool(bool value)
     {
         return value ? TemplateData::Type::True : TemplateData::Type::False;

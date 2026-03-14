@@ -13,8 +13,6 @@
 
 namespace utils
 {
-    void ToString(const CXString &str, std::string &output);
-
     Mustache::Data<std::string>::Type TemplateBool(bool value);
 
     std::string GetQualifiedName(const CursorType &type);
